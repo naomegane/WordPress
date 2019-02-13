@@ -164,7 +164,7 @@ function wpautop_filter($content) {
     global $post;
     $remove_filter = false;
 
-    $arr_types = array('page'); 
+    $arr_types = array('page');
     $post_type = get_post_type( $post->ID );
     if (in_array($post_type, $arr_types)) $remove_filter = true;
 
@@ -182,171 +182,102 @@ function wpautop_filter($content) {
  *
  * ------------------------------ */
 
-
-/*
 add_action( 'init', 'create_post_type' );
-
 function create_post_type() {
+    //Blog
+    register_post_type( 'blog',
+        array(
+          'label' => 'Blog',  // 管理画面の左メニューに表示されるテキスト
+          'public' => true,  // 投稿タイプをパブリックにするか否か
+          'has_archive' => true,  // アーカイブを有効にするか否か
+          'menu_position' => 5,  // 管理画面上でどこに配置するか今回の場合は「投稿」の下に配置
+          'supports' => $EditorStyle,  // 投稿画面でどのmoduleを使うか的な設定
+                'rewrite' => array(
+                    'single' => 'menu',
+                    'with_front' => false
+                )
+            )
+    );
+    //Information
+    register_post_type( 'info',
+        array(
+        'label' => 'Information',
+        'public' => true,
+        'has_archive' => true,
+        'menu_position' => 6,
+        'supports' => $EditorStyle,
+            'rewrite' => array(
+                'single' => 'menu',
+                'with_front' => false
+            )
+        )
+    );
 
-    //カスタム投稿タイプ１（ここから）
-    register_post_type(
-        'Blog',
-    array(
-
-        'labels' => array(
-            'name' => __( 'Blog' ),
-            'singular_name' => __( 'Blog' )
+    //Blog Category
+    register_taxonomy(
+        'blog-cat',  // 追加するタクソノミー名（英小文字とアンダースコアのみ）
+        'blog',  // どのカスタム投稿タイプに追加するか
+        array(
+            'label' => 'Category',  // 管理画面上に表示される名前（投稿で言うCategory）
+            'labels' => array(
+                'all_items' => 'Category List',  // 投稿画面の右カラムに表示されるテキスト（投稿で言うCategory一覧）
+                'add_new_item' => 'Add New Category'  // 投稿画面の右カラムに表示されるカテゴリ追加リンク
+            ),
+            'hierarchical' => true,  // タクソノミーを階層化するか否か（子カテゴリを作れるか否か）
+            'rewrite' => array(
+                'single' => 'menu/category',
+                'with_front' => false
             ),
             'public' => true,
-            'menu_position' =>5,
-            )
-
-
-      $args = array(
-        'labels' => $labels,
-        'public' => true,
-        'menu_position' => 5,
-        'has_archive'   => true,
-        'supports' => array( 'title', 'editor', 'thumbnail', 'author', )
-      );
-
-      register_post_type( 'blog', $args );
-
-      //ブログのタクソノミ
-      $args = array(
-        'hierarchical' => true,
-        'label' => 'Category',
-        'show_ui' => true,
-        'query_var' => true,
-        'singular_label' => 'Category',
-        'rewrite' => array( 'slug' => 'blog' ),
-      );
-      register_taxonomy( 'blog_cat', 'blog', $args );
-  
-    )
-
-    );
-    //カスタム投稿タイプ１（ここまで）
-
-    //カスタム投稿タイプ２（ここから）
-    register_post_type(
-
-    'info',
-    array(
-        'labels' => array(
-        'name' => __( 'Info' ),
-        'singular_name' => __( 'Info' )
-        ),
-        'public' => true,
-        'menu_position' =>5,
+            'show_ui' => true
         )
-    )
-
-
     );
-    //カスタム投稿タイプ２（ここまで）
 
+    //Blog Tag
+    register_taxonomy(
+        'blog-tag',
+        'blog',
+        array(
+            'hierarchical' => false,
+            'update_count_callback' => '_update_post_term_count',
+            'label' => 'Tag',
+            'singular_label' => 'Tag',
+            'public' => true,
+            'show_ui' => true
+        )
+    );
 
-}    */
+    //Info Category
+    register_taxonomy(
+        'info-cat',
+        'info',
+        array(
+            'label' => 'Category',
+            'labels' => array(
+                'all_items' => 'Category List',
+                'add_new_item' => 'Add New Category'
+            ),
+            'hierarchical' => true,
+            'rewrite' => array(
+                'single' => 'menu/category',
+                'with_front' => false
+            ),
+            'public' => true,
+            'show_ui' => true
+        )
+    );
 
-add_action( 'init', 'create_post_type' );  
-function create_post_type() {  
-    //お知らせ  
-    register_post_type( 'blog',  
-        array(  
-          'label' => 'Blog',  // 管理画面の左メニューに表示されるテキスト  
-          'public' => true,  // 投稿タイプをパブリックにするか否か  
-          'has_archive' => true,  // アーカイブを有効にするか否か  
-          'menu_position' => 5,  // 管理画面上でどこに配置するか今回の場合は「投稿」の下に配置  
-          'supports' => $EditorStyle,  // 投稿画面でどのmoduleを使うか的な設定  
-                'rewrite' => array(  
-                    'single' => 'menu',  
-                    'with_front' => false  
-                )  
-            )  
-    );  
-    //スタッフブログ  
-    register_post_type( 'info',  
-        array(  
-        'label' => 'Information',   
-        'public' => true,   
-        'has_archive' => true,   
-        'menu_position' => 6,   
-        'supports' => $EditorStyle,   
-            'rewrite' => array(  
-                'single' => 'menu',  
-                'with_front' => false  
-            )  
-        )  
-    );  
-  
-    //お知らせ-カテゴリ  
-    register_taxonomy(  
-        'blog-cat',  // 追加するタクソノミー名（英小文字とアンダースコアのみ）  
-        'blog',  // どのカスタム投稿タイプに追加するか  
-        array(  
-            'label' => 'カテゴリー',  // 管理画面上に表示される名前（投稿で言うカテゴリー）  
-            'labels' => array(  
-                'all_items' => 'カテゴリ一覧',  // 投稿画面の右カラムに表示されるテキスト（投稿で言うカテゴリー一覧）  
-                'add_new_item' => 'カテゴリの追加'  // 投稿画面の右カラムに表示されるカテゴリ追加リンク  
-            ),  
-            'hierarchical' => true,  // タクソノミーを階層化するか否か（子カテゴリを作れるか否か）  
-            'rewrite' => array(  
-                'single' => 'menu/category',  
-                'with_front' => false  
-            ),  
-            'public' => true,  
-            'show_ui' => true  
-        )  
-    );  
-  
-    //お知らせ-Tag  
-    register_taxonomy(  
-        'blog-tag',   
-        'blog',   
-        array(  
-            'hierarchical' => false,   
-            'update_count_callback' => '_update_post_term_count',  
-            'label' => 'Tag',  
-            'singular_label' => 'Tag',  
-            'public' => true,  
-            'show_ui' => true  
-        )  
-    );  
-  
-    //スタッフブログ-カテゴリ  
-    register_taxonomy(  
-        'info-cat',   
-        'info',   
-        array(  
-            'label' => 'カテゴリー',   
-            'labels' => array(  
-                'all_items' => 'カテゴリ一覧',   
-                'add_new_item' => 'カテゴリの追加'   
-            ),  
-            'hierarchical' => true,  
-            'rewrite' => array(  
-                'single' => 'menu/category',  
-                'with_front' => false  
-            ),  
-            'public' => true,  
-            'show_ui' => true  
-        )  
-    );  
-  
-    //スタッフブログ-Tag  
-    register_taxonomy(  
-        'info-tag',   
-        'info',   
-        array(  
-            'hierarchical' => false,   
-            'update_count_callback' => '_update_post_term_count',  
-            'label' => 'Tag',  
-            'singular_label' => 'Tag',  
-            'public' => true,  
-            'show_ui' => true  
-        )  
-    );  
-} 
-
-
+    //Info Tag
+    register_taxonomy(
+        'info-tag',
+        'info',
+        array(
+            'hierarchical' => false,
+            'update_count_callback' => '_update_post_term_count',
+            'label' => 'Tag',
+            'singular_label' => 'Tag',
+            'public' => true,
+            'show_ui' => true
+        )
+    );
+}
